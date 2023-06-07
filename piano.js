@@ -61,23 +61,21 @@ const keyMapping = new Map([
 ]);
 
 window.addEventListener("keydown", (e) => {
+  if (e.key == "ArrowLeft") {
+    if (e.repeat) return;
+    e.preventDefault();
+    if (pianoOctave > -36) pianoOctave -= 12;
+  }
+  if (e.key == "ArrowRight") {
+    if (e.repeat) return;
+    e.preventDefault();
+    if (pianoOctave < 24) pianoOctave += 12;
+  }
   if (keyMapping.get(e.key)) {
-    if (e.key == "ArrowLeft") {
-      if (e.repeat) return;
-      e.preventDefault();
-      if (pianoOctave > -36) pianoOctave -= 12;
-    }
-    if (e.key == "ArrowRight") {
-      if (e.repeat) return;
-      e.preventDefault();
-      if (pianoOctave < 24) pianoOctave += 12;
-    }
-    if (keyMapping.get(e.key)) {
-      if (e.repeat) return;
-      e.preventDefault();
-      pianoAudio.noteOn(keyMapping.get(e.key) + pianoOctave, 1);
-      socket.emit("n", { t: 1, n: keyMapping.get(e.key) + pianoOctave, v: 1 });
-    }
+    if (e.repeat) return;
+    e.preventDefault();
+    pianoAudio.noteOn(keyMapping.get(e.key) + pianoOctave, 1);
+    socket.emit("n", { t: 1, n: keyMapping.get(e.key) + pianoOctave, v: 1 });
   }
 });
 
