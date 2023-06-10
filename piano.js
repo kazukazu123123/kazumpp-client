@@ -3,18 +3,8 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth - 15;
 canvas.height = window.innerHeight / 1.5;
-canvas.setAttribute("tabindex", 0);
 
 let pianoOctave = 0;
-
-const keyBufferChanged = (changes) => {
-  changes.forEach(function (change, i) {
-    console.log(change.name); // 変更があったpropertyの名前
-    console.log(change.type); // 変更の種類
-    console.log(change.object[change.name]); // 変更後の値
-    console.log(change); // すべての変更
-  });
-};
 
 const keyMapping = new Map([
   //LowerRow
@@ -74,8 +64,8 @@ window.addEventListener("keydown", (e) => {
   if (keyMapping.get(e.key)) {
     if (e.repeat) return;
     e.preventDefault();
-    pianoAudio.noteOn(keyMapping.get(e.key) + pianoOctave, 1);
-    socket.emit("n", { t: 1, n: keyMapping.get(e.key) + pianoOctave, v: 1 });
+    kazumpp.pianoAudio.noteOn(keyMapping.get(e.key) + pianoOctave, 1);
+    ws.send(JSON.stringify({ m: "n", t: 1, n: keyMapping.get(e.key) + pianoOctave, v: 1 }));
   }
 });
 
@@ -83,7 +73,7 @@ window.addEventListener("keyup", (e) => {
   if (keyMapping.get(e.key)) {
     if (e.repeat) return;
     e.preventDefault();
-    pianoAudio.noteOff(keyMapping.get(e.key) + pianoOctave);
-    socket.emit("n", { t: 0, n: keyMapping.get(e.key) + pianoOctave });
+    kazumpp.pianoAudio.noteOff(keyMapping.get(e.key) + pianoOctave);
+    ws.send(JSON.stringify({ m: "n", t: 0, n: keyMapping.get(e.key) + pianoOctave }));
   }
 });
