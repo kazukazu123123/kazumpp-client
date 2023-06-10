@@ -1,5 +1,6 @@
 class PianoAudio {
-  constructor() {
+  init() {
+    if (this._isInitialized) return
     this._context = new AudioContext()
     this._masterGain = this._context.createGain()
     this._limiterNode = this._context.createDynamicsCompressor()
@@ -7,11 +8,7 @@ class PianoAudio {
     this._volume = 0.5
     this._buffers = {}
     this._pianoAudios = []
-  }
-
-  init() {
-    if (this._isInitialized) return
-    this._limiterNode.threshold.value = -10
+    this._limiterNode.threshold.value = -6
 		this._limiterNode.knee.value = 0
 		this._limiterNode.ratio.value = 20
 		this._limiterNode.attack.value = 0
@@ -20,6 +17,11 @@ class PianoAudio {
 		this._masterGain.gain.value = this._volume
     this._masterGain.connect(this._context.destination)
     this._isInitialized = true
+
+    //Load default sound
+    for (let i = 21; i < 109; i++) {
+      this.loadSound(i, `sounds/MPPClassic/${i}.wav.mp3`)
+    }
   }
 
   loadSound(key, url) {
@@ -27,29 +29,27 @@ class PianoAudio {
     if (this._buffers.length) this._buffers = [];
     fetch(url)
       .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) return console.log(`HTTP error! Status: ${response.status}`);
         return response.arrayBuffer();
       })
       .then(audioData => {
         this._context.decodeAudioData(audioData, buffer => {
           this._buffers[key] = buffer;
-        });
+        })
       })
       .catch(error => {
         console.error('Error fetching audio:', error);
-      });
+      })
   }
   
 
   noteOn(noteNumber, vel) {
     if (vel < 0) vel = 0; else if (vel > 1) vel = 1
-    const buffer = this._buffers[noteNumber]
     if (!this._isInitialized) return
+    if (kazumpp.pianoAudio._context.state !== "running") return
     if (!this._buffers[noteNumber]) return
+    const buffer = this._buffers[noteNumber]
     const envelopeGain = this._context.createGain()
-    envelopeGain.gain.cancelScheduledValues(this._context.currentTime)
     envelopeGain.gain.setValueAtTime(1, this._context.currentTime)
 		const gain = this._context.createGain()
     const source = this._context.createBufferSource()
@@ -72,7 +72,8 @@ class PianoAudio {
 
   noteOff(noteNumber) {
     if (!this._isInitialized) return
-    pianoAudio._pianoAudios.filter(e => e.note == noteNumber).forEach(e => {
+    if (kazumpp.pianoAudio._context.state !== "running") return
+    kazumpp.pianoAudio._pianoAudios.filter(e => e.note == noteNumber).forEach(e => {
       if (e) {
         e.envelopeGain.gain.setValueAtTime(e.envelopeGain.gain.value, this._context.currentTime)
         e.envelopeGain.gain.linearRampToValueAtTime(0, this._context.currentTime + 0.15)
@@ -82,9 +83,9 @@ class PianoAudio {
   }
 
   noteOffAll() {
-    if (!this._isAudioLoaded) return
     if (!this._isInitialized) return
-    pianoAudio._pianoAudios.forEach(e => {
+    if (kazumpp.pianoAudio._context.state !== "running") return
+    kazumpp.pianoAudio._pianoAudios.forEach(e => {
       if (e) {
         e.envelopeGain.gain.setValueAtTime(e.envelopeGain.gain.value, this._context.currentTime)
         e.envelopeGain.gain.linearRampToValueAtTime(0, this._context.currentTime + 0.15)
@@ -104,10 +105,5 @@ class PianoAudio {
   }
 }
 
-const pianoAudio = new PianoAudio()
-pianoAudio.init()
-
-//Load default sound
-for (let i = 21; i < 109; i++) {
-  pianoAudio.loadSound(i, `sounds/MPPClassic/${i}.wav.mp3`)
-}
+kazumpp.pianoAudio = new PianoAudio()
+kazumpp.pianoAudio.init()
