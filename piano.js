@@ -1,10 +1,10 @@
-const canvas = document.getElementById("piano");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById("piano")
+const ctx = canvas.getContext("2d")
 
-canvas.width = window.innerWidth - 15;
-canvas.height = window.innerHeight / 1.5;
+canvas.width = window.innerWidth - 15
+canvas.height = window.innerHeight / 1.5
 
-let pianoOctave = 0;
+let pianoOctave = 0
 
 const keyMapping = new Map([
   //LowerRow
@@ -48,32 +48,42 @@ const keyMapping = new Map([
   ["^", 87],
   ["[", 88],
   ["\\", 89],
-]);
+])
 
 window.addEventListener("keydown", (e) => {
   if (e.key == "ArrowLeft") {
-    if (e.repeat) return;
-    e.preventDefault();
-    if (pianoOctave > -36) pianoOctave -= 12;
+    if (e.repeat) return
+    e.preventDefault()
+    if (pianoOctave > -36) pianoOctave -= 12
   }
   if (e.key == "ArrowRight") {
-    if (e.repeat) return;
-    e.preventDefault();
-    if (pianoOctave < 24) pianoOctave += 12;
+    if (e.repeat) return
+    e.preventDefault()
+    if (pianoOctave < 24) pianoOctave += 12
   }
   if (keyMapping.get(e.key)) {
-    if (e.repeat) return;
-    e.preventDefault();
-    kazumpp.pianoAudio.noteOn(keyMapping.get(e.key) + pianoOctave, 1);
-    ws.send(JSON.stringify({ m: "n", t: 1, n: keyMapping.get(e.key) + pianoOctave, v: 1 }));
+    if (e.repeat) return
+    e.preventDefault()
+    kazumpp.pianoAudio.noteOn(keyMapping.get(e.key) + pianoOctave, 1)
+    if (!kazumpp.noteBuffer.bufferTime) {
+			kazumpp.noteBuffer.bufferTime = Date.now()
+			kazumpp.noteBuffer.buffer.push({n: keyMapping.get(e.key) + pianoOctave, v: 1})
+		} else {
+			kazumpp.noteBuffer.buffer.push({d: Date.now() - kazumpp.noteBuffer.bufferTime, n: keyMapping.get(e.key) + pianoOctave, v: 1})
+		}
   }
-});
+})
 
 window.addEventListener("keyup", (e) => {
   if (keyMapping.get(e.key)) {
-    if (e.repeat) return;
-    e.preventDefault();
-    kazumpp.pianoAudio.noteOff(keyMapping.get(e.key) + pianoOctave);
-    ws.send(JSON.stringify({ m: "n", t: 0, n: keyMapping.get(e.key) + pianoOctave }));
+    if (e.repeat) return
+    e.preventDefault()
+    kazumpp.pianoAudio.noteOff(keyMapping.get(e.key) + pianoOctave)
+    if (!kazumpp.noteBuffer.bufferTime) {
+			kazumpp.noteBuffer.bufferTime = Date.now()
+			kazumpp.noteBuffer.buffer.push({n: keyMapping.get(e.key) + pianoOctave, s: 1})
+		} else {
+			kazumpp.noteBuffer.buffer.push({d: Date.now() - kazumpp.noteBuffer.bufferTime, n: keyMapping.get(e.key) + pianoOctave, s: 1})
+		}
   }
-});
+})
