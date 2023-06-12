@@ -15,7 +15,7 @@ kazumpp.client.eventEmitter.on("t", msg => {
 })
 
 kazumpp.client.eventEmitter.on("n", msg => {
-  const t = msg.t - kazumpp.client.serverTimeOffset + 1000 - Date.now()
+  const t = Date.now() - msg.t - kazumpp.client.serverTimeOffset + 1000
   for (let i = 0; i < msg.n.length; i++) {
     const note = msg.n[i]
     let ms = t + (note.d || 0)
