@@ -121,7 +121,7 @@ export class Client {
     var iv;
     iv = setInterval(function() {
       this.serverTimeOffset += inc;
-      if(++step >= steps) {
+      if (++step >= steps) {
         clearInterval(iv);
         //console.log("serverTimeOffset reached: " + self.serverTimeOffset);
         this.serverTimeOffset = target;
