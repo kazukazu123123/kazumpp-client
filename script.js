@@ -15,7 +15,7 @@ kazumpp.client.eventEmitter.on("t", msg => {
 })
 
 kazumpp.client.eventEmitter.on("n", msg => {
-  const t = Date.now() - msg.t - kazumpp.client.serverTimeOffset + 1000
+  const t = msg.t - kazumpp.client.serverTimeOffset + 1000 - Date.now()
   for (let i = 0; i < msg.n.length; i++) {
     const note = msg.n[i]
     let ms = t + (note.d || 0)
@@ -23,13 +23,13 @@ kazumpp.client.eventEmitter.on("n", msg => {
       ms = 0
     } else if (ms > 10000) continue
     if (note.s) {
-      setTimeout(() => kazumpp.pianoAudio.noteOff(note.n), ms)
+      kazumpp.pianoAudio.stop(note.n, ms)
     } else {
       let vel =
         typeof note.v !== "undefined" ? parseFloat(note.v) : DEFAULT_VELOCITY
       if (vel < 0) vel = 0
       else if (vel > 1) vel = 1
-      setTimeout(() => kazumpp.pianoAudio.noteOn(note.n, vel), ms)
+      kazumpp.pianoAudio.play(note.n, vel, ms)
     }
   }
 })

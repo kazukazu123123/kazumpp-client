@@ -64,13 +64,14 @@ window.addEventListener("keydown", (e) => {
   if (keyMapping.get(e.key)) {
     if (e.repeat) return
     e.preventDefault()
-    kazumpp.pianoAudio.noteOn(keyMapping.get(e.key) + pianoOctave, 1)
+    const note = keyMapping.get(e.key) + pianoOctave
+    kazumpp.pianoAudio.play(note, 1, 0)
     if (!kazumpp.noteBuffer.bufferTime) {
-			kazumpp.noteBuffer.bufferTime = Date.now()
-			kazumpp.noteBuffer.buffer.push({n: keyMapping.get(e.key) + pianoOctave, v: 1})
-		} else {
-			kazumpp.noteBuffer.buffer.push({d: Date.now() - kazumpp.noteBuffer.bufferTime, n: keyMapping.get(e.key) + pianoOctave, v: 1})
-		}
+      kazumpp.noteBuffer.bufferTime = Date.now()
+      kazumpp.noteBuffer.buffer.push({n: note, v: 1})
+    } else {
+      kazumpp.noteBuffer.buffer.push({d: Date.now() - kazumpp.noteBuffer.bufferTime, n: note, v: 1})
+    }
   }
 })
 
@@ -78,12 +79,13 @@ window.addEventListener("keyup", (e) => {
   if (keyMapping.get(e.key)) {
     if (e.repeat) return
     e.preventDefault()
-    kazumpp.pianoAudio.noteOff(keyMapping.get(e.key) + pianoOctave)
+    const note = keyMapping.get(e.key) + pianoOctave
+    kazumpp.pianoAudio.stop(note, 0)
     if (!kazumpp.noteBuffer.bufferTime) {
-			kazumpp.noteBuffer.bufferTime = Date.now()
-			kazumpp.noteBuffer.buffer.push({n: keyMapping.get(e.key) + pianoOctave, s: 1})
-		} else {
-			kazumpp.noteBuffer.buffer.push({d: Date.now() - kazumpp.noteBuffer.bufferTime, n: keyMapping.get(e.key) + pianoOctave, s: 1})
-		}
+      kazumpp.noteBuffer.bufferTime = Date.now()
+      kazumpp.noteBuffer.buffer.push({n: note, s: 1})
+    } else {
+      kazumpp.noteBuffer.buffer.push({d: Date.now() - kazumpp.noteBuffer.bufferTime, n: note, s: 1})
+    }
   }
 })
