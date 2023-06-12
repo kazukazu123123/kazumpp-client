@@ -105,7 +105,7 @@ export class Client {
   }
 
   sendJSON(msg) {
-    this.ws.send(JSON.stringify(msg))
+    if (this.isConnected()) this.ws.send(JSON.stringify(msg))
   }
 
   receiveServerTime(time) {
