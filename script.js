@@ -1,10 +1,17 @@
+import { PianoAudio } from './audio.js'
 import { Client } from './client.js'
 
 const kazumpp = {
+  pianoAudio: new PianoAudio(),
   client: new Client("ws://localhost:3000")
 }
 
+kazumpp.pianoAudio.init();
 kazumpp.client.start()
+
+kazumpp.client.eventEmitter.on("status", status => {
+  console.log(status)
+})
 
 kazumpp.client.eventEmitter.on("hi", msg => {
   kazumpp.client.receiveServerTime(msg.t, msg.e || undefined)

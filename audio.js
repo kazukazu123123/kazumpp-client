@@ -1,6 +1,5 @@
-class PianoAudio {
-  init() {
-    if (this._isInitialized) return;
+export class PianoAudio {
+  constructor() {
     this._context = new AudioContext();
     this._masterGain = this._context.createGain();
     this._masterGain.gain.value = 1;
@@ -19,6 +18,10 @@ class PianoAudio {
     this.pianoGain = this._context.createGain();
     this.pianoGain.gain.value = 0.5;
     this.pianoGain.connect(this._limiterNode);
+  }
+
+  init() {
+    if (this._isInitialized) return;
     this.lramp = 0.02;
     this.sstop = 0.02;
     this.lramps = 0.16;
@@ -109,8 +112,3 @@ class PianoAudio {
     return this._volume;
   }
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-  window.kazumpp.pianoAudio = new PianoAudio();
-  window.kazumpp.pianoAudio.init();
-});

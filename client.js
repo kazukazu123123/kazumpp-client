@@ -127,5 +127,5 @@ export class Client {
         this.serverTimeOffset = target;
       }
     }, step_ms);
-    }
+  }
 }
